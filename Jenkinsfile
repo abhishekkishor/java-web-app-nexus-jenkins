@@ -1,27 +1,39 @@
 node{
-
-    stage("SCM Checkout"){
+    
+    stage("Git Clone") {
         
-        echo "---------------------------- Pulling Application's code from Github--------------------------------"
-        
-        git url:'https://github.com/abhishekkishor/java-web-app-docker.git', branch: 'master'
-        
-        echo "---------------------------- Pulled Application's code--------------------------------"
+        git url: 'https://github.com/abhishekkishor/java-web-app-nexus-jenkins.git', branch:'master'
         
     }
-    stage("Maven Clean Package"){
-        
-        echo "-------------------------------Maven Process--------------------------------"
+    
+    stage("Maven Build"){
         
         sh "mvn clean package"
         
-        echo "-------------------------------Now Archiving the Artifacts....------------------------------------"
-        
         archiveArtifacts artifacts: '**/*.war'
         
-        echo "-------------------------------Artifacts Archieved....------------------------------------"
+    }
+    
+    stage("Nexus Repo") {
         
-        echo "-------------------------------Check Project's Status------------------------------------"
+        nexusArtifactUploader artifacts: [
+            [
+                artifactId: 'java-web-app',
+                classifier: '',
+                file: 'target/java-web-app-1.0.war',
+                type: 'war'
+            ]
+        
+        ],
+                
+        credentialsId: 'nexus3', 
+        groupId: 'com.mt', 
+        nexusUrl: '172.31.8.152:8081', 
+        nexusVersion: 'nexus3', 
+        protocol: 'http', 
+        repository: 'jenkins-nexus',
+        version: '1.0'
+        
     }
     
 }
