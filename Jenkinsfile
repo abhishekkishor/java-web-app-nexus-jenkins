@@ -16,11 +16,13 @@ node{
     
     stage("Nexus Repo") {
         
+        def readPom = readMavenPom 'pom.xml'
+
         nexusArtifactUploader artifacts: [
             [
                 artifactId: 'java-web-app',
                 classifier: '',
-                file: 'target/java-web-app-1.0.war',
+                file: "target/java-web-app-${readPom.version}.war",
                 type: 'war'
             ]
         
@@ -32,7 +34,7 @@ node{
         nexusVersion: 'nexus3', 
         protocol: 'http', 
         repository: 'jenkins-nexus',
-        version: '1.0'
+        version: "${readPom.version}"
         
     }
     
